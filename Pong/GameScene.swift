@@ -14,6 +14,7 @@ class GameScene: SKScene {
     // MARK: Properties
     var lastUpdateTime: TimeInterval = 0
     var dt: TimeInterval = 0
+    var gameOver = false
     
     var ballVelocity: CGFloat = 5
     var ballRate: CGFloat = 0
@@ -26,23 +27,40 @@ class GameScene: SKScene {
         let border = SKPhysicsBody(edgeLoopFrom: self.frame)
         border.restitution = 1.0
         border.friction = 0
-        border.categoryBitMask = Categories.border
         return border
     }()
     
     lazy var playerBorder: SKSpriteNode = {
         let pb = SKSpriteNode()
         pb.size = CGSize(width: self.frame.width, height: 2)
-        pb.position = CGPoint(x: 0, y: 0)
+        pb.position = CGPoint(x: self.frame.width / 2, y: 0)
         pb.color = .red
+        pb.physicsBody = SKPhysicsBody(rectangleOf: pb.size)
+        pb.physicsBody?.affectedByGravity = false
+        pb.physicsBody?.allowsRotation = false
+        pb.physicsBody?.isDynamic = false
+        pb.physicsBody?.categoryBitMask = Categories.playerBorder
+        pb.physicsBody?.restitution = 0
+        pb.physicsBody?.friction = 0
+        pb.physicsBody?.angularDamping = 0
+        pb.physicsBody?.linearDamping = 0
         return pb
     }()
     
     lazy var enemyBorder: SKSpriteNode = {
         let eb = SKSpriteNode()
         eb.size = CGSize(width: self.frame.width, height: 2)
-        eb.position = CGPoint(x: 0, y: self.frame.height)
+        eb.position = CGPoint(x: self.frame.width / 2, y: self.frame.height)
         eb.color = .red
+        eb.physicsBody = SKPhysicsBody(rectangleOf: eb.size)
+        eb.physicsBody?.affectedByGravity = false
+        eb.physicsBody?.allowsRotation = false
+        eb.physicsBody?.isDynamic = false
+        eb.physicsBody?.categoryBitMask = Categories.enemyBorder
+        eb.physicsBody?.restitution = 0
+        eb.physicsBody?.friction = 0
+        eb.physicsBody?.linearDamping = 0
+        eb.physicsBody?.angularDamping = 0
         return eb
     }()
     
@@ -91,8 +109,7 @@ class GameScene: SKScene {
         ball.physicsBody?.linearDamping = 0
         ball.physicsBody?.angularDamping = 0
         ball.physicsBody?.categoryBitMask = Categories.ball
-        ball.physicsBody?.contactTestBitMask = Categories.paddle
-        ball.physicsBody?.collisionBitMask = Categories.paddle | Categories.border
+        ball.physicsBody?.contactTestBitMask = Categories.playerBorder | Categories.enemyBorder
         return ball
     }()
     
@@ -101,12 +118,13 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         setupSprites()
         setupScene()
-        print("frame", self.frame)
-        print("enemy", enemyBorder.frame)
-        print("player", playerBorder.frame)
     }
     
     override func update(_ currentTime: TimeInterval) {
+        if gameOver {
+            return
+        }
+        
         if lastUpdateTime > 0 {
             dt = currentTime - lastUpdateTime
         } else {
@@ -137,6 +155,13 @@ extension GameScene {
         }
         
         movePlayer(to: touchLocation)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if gameOver {
+            view?.presentScene(GameScene(size: size), transition: SKTransition.crossFade(withDuration: 1.0))
+            gameOver = false
+        }
     }
 }
 
@@ -179,8 +204,39 @@ extension GameScene {
     }
     
     private func setupScene() {
+        physicsWorld.contactDelegate = self
         physicsBody = border
         ball.physicsBody?.applyImpulse(CGVector(dx: -ballVelocity, dy: -ballVelocity))
+    }
+}
+
+// MARK: SKPhysicsContactDelegate
+extension GameScene: SKPhysicsContactDelegate {
+    func didBegin(_ contact: SKPhysicsContact) {
+        let bodyA = contact.bodyA
+        let bodyB = contact.bodyB
+        let categories = [bodyA.categoryBitMask, bodyB.categoryBitMask]
+        
+        // Change gamescene
+        if categories.contains(Categories.playerBorder) {
+            let label = SKLabelNode()
+            label.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            label.color = .white
+            addChild(label)
+            ball.removeFromParent()
+            enemy.removeAllActions()
+            label.text = "You lose!"
+            gameOver = true
+        } else if categories.contains(Categories.enemyBorder) {
+            let label = SKLabelNode()
+            label.position = CGPoint(x: size.width / 2, y: size.height / 2)
+            label.color = .white
+            addChild(label)
+            ball.removeFromParent()
+            enemy.removeAllActions()
+            label.text = "You Win!"
+            gameOver = true
+        }
     }
 }
 

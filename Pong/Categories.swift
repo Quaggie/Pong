@@ -11,5 +11,6 @@ import Foundation
 struct Categories {
     static let paddle: UInt32 = 0x1 << 1
     static let ball: UInt32 = 0x1 << 2
-    static let border: UInt32 = 0x1 << 3
+    static let playerBorder: UInt32 = 0x1 << 3
+    static let enemyBorder: UInt32 = 0x1 << 4
 }
