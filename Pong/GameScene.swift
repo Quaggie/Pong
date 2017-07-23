@@ -15,12 +15,35 @@ class GameScene: SKScene {
     var lastUpdateTime: TimeInterval = 0
     var dt: TimeInterval = 0
     
+    var ballVelocity: CGFloat = 5
+    var ballRate: CGFloat = 0
+    lazy var ballRelativeVelocity: CGVector = {
+        let ballVelocity = self.ball.physicsBody?.velocity ?? CGVector()
+        return CGVector(dx: self.ballVelocity - ballVelocity.dx, dy: self.ballVelocity - ballVelocity.dy)
+    }()
+    
     lazy var border: SKPhysicsBody = {
         let border = SKPhysicsBody(edgeLoopFrom: self.frame)
         border.restitution = 1.0
         border.friction = 0
         border.categoryBitMask = Categories.border
         return border
+    }()
+    
+    lazy var playerBorder: SKSpriteNode = {
+        let pb = SKSpriteNode()
+        pb.size = CGSize(width: self.frame.width, height: 2)
+        pb.position = CGPoint(x: 0, y: 0)
+        pb.color = .red
+        return pb
+    }()
+    
+    lazy var enemyBorder: SKSpriteNode = {
+        let eb = SKSpriteNode()
+        eb.size = CGSize(width: self.frame.width, height: 2)
+        eb.position = CGPoint(x: 0, y: self.frame.height)
+        eb.color = .red
+        return eb
     }()
     
     lazy var player: SKSpriteNode = {
@@ -78,6 +101,9 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         setupSprites()
         setupScene()
+        print("frame", self.frame)
+        print("enemy", enemyBorder.frame)
+        print("player", playerBorder.frame)
     }
     
     override func update(_ currentTime: TimeInterval) {
@@ -88,7 +114,8 @@ class GameScene: SKScene {
         }
         lastUpdateTime = currentTime
         
-        enemy.run(SKAction.moveTo(x: ball.position.x, duration: 0.5))
+        adjustEnemyAI()
+        adjustBallVelocity()
     }
 }
 
@@ -117,8 +144,8 @@ extension GameScene {
 extension GameScene {
     private func limitSprite(_ sprite: SKSpriteNode, inX x: CGFloat) -> CGFloat {
         var xPos = x
-        xPos = max(frame.minX + (sprite.size.width / 2), x)
-        xPos = min(frame.maxX - (sprite.size.width / 2), x)
+        xPos = max(frame.minX + (sprite.size.width / 2), xPos)
+        xPos = min(frame.maxX - (sprite.size.width / 2), xPos)
         return xPos
     }
     
@@ -127,9 +154,16 @@ extension GameScene {
         player.position = CGPoint(x: xPosition, y: player.position.y)
     }
     
-    private func moveEnemy(to location: CGPoint) {
-        let xPosition = limitSprite(enemy, inX: location.x)
-        enemy.position = CGPoint(x: xPosition, y: enemy.position.y)
+    private func adjustEnemyAI() {
+        let xPosition = limitSprite(enemy, inX: ball.position.x)
+        enemy.run(SKAction.moveTo(x: xPosition, duration: 0.25))
+    }
+    
+    private func adjustBallVelocity() {
+        let ballVelocity = ball.physicsBody?.velocity ?? CGVector()
+        let dx = ballVelocity.dx + (ballRelativeVelocity.dx * ballRate)
+        let dy = ballVelocity.dy + (ballRelativeVelocity.dy * ballRate)
+        ball.physicsBody?.velocity = CGVector(dx: dx, dy: dy)
     }
 }
 
@@ -140,11 +174,13 @@ extension GameScene {
         addChild(player)
         addChild(enemy)
         addChild(ball)
+        addChild(playerBorder)
+        addChild(enemyBorder)
     }
     
     private func setupScene() {
         physicsBody = border
-        ball.physicsBody?.applyImpulse(CGVector(dx: -5, dy: -5))
+        ball.physicsBody?.applyImpulse(CGVector(dx: -ballVelocity, dy: -ballVelocity))
     }
 }
 
