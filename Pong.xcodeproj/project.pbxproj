@@ -14,6 +14,11 @@
 		E01C92D51F22C9B300A41DF5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E01C92D31F22C9B300A41DF5 /* LaunchScreen.storyboard */; };
 		E05BA68D1F250AB400DBBEC4 /* ball.png in Resources */ = {isa = PBXBuildFile; fileRef = E05BA68C1F25097700DBBEC4 /* ball.png */; };
 		E05BA68F1F250E0F00DBBEC4 /* Categories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E05BA68E1F250E0F00DBBEC4 /* Categories.swift */; };
+		E0E2C8A71F25781700AF9796 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E2C8A61F25781700AF9796 /* Utils.swift */; };
+		E0E2C8A91F257AE400AF9796 /* GameMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E2C8A81F257AE400AF9796 /* GameMode.swift */; };
+		E0E2C8AC1F257C6300AF9796 /* Playing.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E2C8AB1F257C6300AF9796 /* Playing.swift */; };
+		E0E2C8AE1F257D2A00AF9796 /* AFK.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E2C8AD1F257D2A00AF9796 /* AFK.swift */; };
+		E0E2C8B01F257D4300AF9796 /* GameOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0E2C8AF1F257D4300AF9796 /* GameOver.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +31,11 @@
 		E01C92D61F22C9B300A41DF5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		E05BA68C1F25097700DBBEC4 /* ball.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ball.png; sourceTree = "<group>"; };
 		E05BA68E1F250E0F00DBBEC4 /* Categories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Categories.swift; sourceTree = "<group>"; };
+		E0E2C8A61F25781700AF9796 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		E0E2C8A81F257AE400AF9796 /* GameMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameMode.swift; sourceTree = "<group>"; };
+		E0E2C8AB1F257C6300AF9796 /* Playing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Playing.swift; sourceTree = "<group>"; };
+		E0E2C8AD1F257D2A00AF9796 /* AFK.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AFK.swift; sourceTree = "<group>"; };
+		E0E2C8AF1F257D4300AF9796 /* GameOver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOver.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -59,6 +69,7 @@
 		E01C92C31F22C9B300A41DF5 /* Pong */ = {
 			isa = PBXGroup;
 			children = (
+				E0E2C8AA1F257C4D00AF9796 /* GameStates */,
 				E01C92C41F22C9B300A41DF5 /* AppDelegate.swift */,
 				E01C92CA1F22C9B300A41DF5 /* GameScene.swift */,
 				E01C92CC1F22C9B300A41DF5 /* GameViewController.swift */,
@@ -66,6 +77,8 @@
 				E01C92D31F22C9B300A41DF5 /* LaunchScreen.storyboard */,
 				E01C92D61F22C9B300A41DF5 /* Info.plist */,
 				E05BA68E1F250E0F00DBBEC4 /* Categories.swift */,
+				E0E2C8A61F25781700AF9796 /* Utils.swift */,
+				E0E2C8A81F257AE400AF9796 /* GameMode.swift */,
 			);
 			path = Pong;
 			sourceTree = "<group>";
@@ -76,6 +89,16 @@
 				E05BA68C1F25097700DBBEC4 /* ball.png */,
 			);
 			path = Assets;
+			sourceTree = "<group>";
+		};
+		E0E2C8AA1F257C4D00AF9796 /* GameStates */ = {
+			isa = PBXGroup;
+			children = (
+				E0E2C8AB1F257C6300AF9796 /* Playing.swift */,
+				E0E2C8AD1F257D2A00AF9796 /* AFK.swift */,
+				E0E2C8AF1F257D4300AF9796 /* GameOver.swift */,
+			);
+			path = GameStates;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -149,9 +172,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E0E2C8A71F25781700AF9796 /* Utils.swift in Sources */,
+				E0E2C8AC1F257C6300AF9796 /* Playing.swift in Sources */,
 				E01C92CB1F22C9B300A41DF5 /* GameScene.swift in Sources */,
+				E0E2C8B01F257D4300AF9796 /* GameOver.swift in Sources */,
+				E0E2C8A91F257AE400AF9796 /* GameMode.swift in Sources */,
 				E05BA68F1F250E0F00DBBEC4 /* Categories.swift in Sources */,
 				E01C92CD1F22C9B300A41DF5 /* GameViewController.swift in Sources */,
+				E0E2C8AE1F257D2A00AF9796 /* AFK.swift in Sources */,
 				E01C92C51F22C9B300A41DF5 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

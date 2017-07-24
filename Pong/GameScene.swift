@@ -14,13 +14,27 @@ class GameScene: SKScene {
     // MARK: Properties
     var lastUpdateTime: TimeInterval = 0
     var dt: TimeInterval = 0
-    var gameOver = false
+    lazy var gameMode: GameMode = {
+        let states: [GKState] = [
+            AFK(scene: self),
+            Playing(scene: self),
+            GameOver(scene: self)
+        ]
+        return GameMode(difficulty: .normal, states: states)
+    }()
     
-    var ballVelocity: CGFloat = 5
+    var ballVelocity: CGFloat = 3
     var ballRate: CGFloat = 0
     lazy var ballRelativeVelocity: CGVector = {
         let ballVelocity = self.ball.physicsBody?.velocity ?? CGVector()
         return CGVector(dx: self.ballVelocity - ballVelocity.dx, dy: self.ballVelocity - ballVelocity.dy)
+    }()
+    
+    lazy var label: SKLabelNode = {
+        let label = SKLabelNode()
+        label.color = .white
+        label.position = CGPoint(x: self.size.width / 2, y: self.size.height / 2)
+        return label
     }()
     
     lazy var border: SKPhysicsBody = {
@@ -117,21 +131,12 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         setupSprites()
-        setupScene()
+        becomeFirstResponder()
+        gameMode.state.enter(AFK.self)
     }
     
     override func update(_ currentTime: TimeInterval) {
-        if gameOver {
-            return
-        }
-        
-        if lastUpdateTime > 0 {
-            dt = currentTime - lastUpdateTime
-        } else {
-            dt = 0
-        }
-        lastUpdateTime = currentTime
-        
+        gameMode.state.update(deltaTime: currentTime)
         adjustEnemyAI()
         adjustBallVelocity()
     }
@@ -145,7 +150,15 @@ extension GameScene {
             return
         }
         
-        movePlayer(to: touchLocation)
+        if let currentState = gameMode.state.currentState {
+            switch currentState {
+            case is Playing:
+                movePlayer(to: touchLocation)
+            case is AFK:
+                gameMode.state.enter(Playing.self)
+            default: break
+            }
+        }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -154,13 +167,27 @@ extension GameScene {
             return
         }
         
-        movePlayer(to: touchLocation)
+        if gameMode.state.currentState is Playing {
+            movePlayer(to: touchLocation)
+        }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if gameOver {
+        if gameMode.state.currentState is GameOver {
             view?.presentScene(GameScene(size: size), transition: SKTransition.crossFade(withDuration: 1.0))
-            gameOver = false
+        }
+    }
+}
+
+// MARK: Shake gesture
+extension GameScene {
+    override var canBecomeFirstResponder: Bool {
+        return true
+    }
+    
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+        if motion == .motionShake {
+            print("Shake")
         }
     }
 }
@@ -181,7 +208,7 @@ extension GameScene {
     
     private func adjustEnemyAI() {
         let xPosition = limitSprite(enemy, inX: ball.position.x)
-        enemy.run(SKAction.moveTo(x: xPosition, duration: 0.25))
+        enemy.run(SKAction.moveTo(x: xPosition, duration: 0.08))
     }
     
     private func adjustBallVelocity() {
@@ -198,16 +225,20 @@ extension GameScene {
     private func setupSprites() {
         addChild(player)
         addChild(enemy)
-        addChild(ball)
         addChild(playerBorder)
         addChild(enemyBorder)
-    }
-    
-    private func setupScene() {
         physicsWorld.contactDelegate = self
         physicsBody = border
-        ball.physicsBody?.applyImpulse(CGVector(dx: -ballVelocity, dy: -ballVelocity))
     }
+    
+    func setupScene() {
+        addChild(ball)
+        
+        let dx = randomDouble() > 0.5 ? -ballVelocity : ballVelocity
+        let dy = randomDouble() > 0.5 ? -ballVelocity : ballVelocity
+        ball.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
+    }
+    
 }
 
 // MARK: SKPhysicsContactDelegate
@@ -219,23 +250,13 @@ extension GameScene: SKPhysicsContactDelegate {
         
         // Change gamescene
         if categories.contains(Categories.playerBorder) {
-            let label = SKLabelNode()
-            label.position = CGPoint(x: size.width / 2, y: size.height / 2)
-            label.color = .white
             addChild(label)
-            ball.removeFromParent()
-            enemy.removeAllActions()
             label.text = "You lose!"
-            gameOver = true
+            gameMode.state.enter(GameOver.self)
         } else if categories.contains(Categories.enemyBorder) {
-            let label = SKLabelNode()
-            label.position = CGPoint(x: size.width / 2, y: size.height / 2)
-            label.color = .white
             addChild(label)
-            ball.removeFromParent()
-            enemy.removeAllActions()
             label.text = "You Win!"
-            gameOver = true
+            gameMode.state.enter(GameOver.self)
         }
     }
 }
