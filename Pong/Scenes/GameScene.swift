@@ -171,8 +171,6 @@ extension GameScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameMode.state.currentState is GameOver {
-//            let gameScene = GameScene(size: size)
-//            gameScene.gameMode.difficulty = gameMode.difficulty
             view?.presentScene(GameScene(size: size), transition: SKTransition.crossFade(withDuration: 1.0))
         }
         if let currentState = gameMode.state.currentState as? AFK {

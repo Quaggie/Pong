@@ -9,7 +9,7 @@
 import SpriteKit
 import GameplayKit
 
-class Playing: GKState {
+class Playing: CustomGKState {
     weak var scene: GameScene?
     
     init(scene: SKScene) {
