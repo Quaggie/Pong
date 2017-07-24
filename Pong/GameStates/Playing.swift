@@ -20,7 +20,13 @@ class Playing: GKState {
     override func didEnter(from previousState: GKState?) {
         if previousState is AFK {
             scene?.setupScene()
+            scene?.label.removeFromParent()
         }
+    }
+  
+    override func update(deltaTime seconds: TimeInterval) {
+        scene?.adjustEnemyAI()
+        scene?.adjustBallVelocity()
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {

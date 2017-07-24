@@ -12,8 +12,6 @@ import GameplayKit
 class GameScene: SKScene {
     
     // MARK: Properties
-    var lastUpdateTime: TimeInterval = 0
-    var dt: TimeInterval = 0
     lazy var gameMode: GameMode = {
         let states: [GKState] = [
             AFK(scene: self),
@@ -33,7 +31,8 @@ class GameScene: SKScene {
     lazy var label: SKLabelNode = {
         let label = SKLabelNode()
         label.color = .white
-        label.position = CGPoint(x: self.size.width / 2, y: self.size.height / 2)
+        label.position = CGPoint(x: self.size.width / 2, y: (self.size.height / 2) + 20)
+        label.text = "Pressione para jogar"
         return label
     }()
     
@@ -48,7 +47,6 @@ class GameScene: SKScene {
         let pb = SKSpriteNode()
         pb.size = CGSize(width: self.frame.width, height: 2)
         pb.position = CGPoint(x: self.frame.width / 2, y: 0)
-        pb.color = .red
         pb.physicsBody = SKPhysicsBody(rectangleOf: pb.size)
         pb.physicsBody?.affectedByGravity = false
         pb.physicsBody?.allowsRotation = false
@@ -65,7 +63,6 @@ class GameScene: SKScene {
         let eb = SKSpriteNode()
         eb.size = CGSize(width: self.frame.width, height: 2)
         eb.position = CGPoint(x: self.frame.width / 2, y: self.frame.height)
-        eb.color = .red
         eb.physicsBody = SKPhysicsBody(rectangleOf: eb.size)
         eb.physicsBody?.affectedByGravity = false
         eb.physicsBody?.allowsRotation = false
@@ -137,8 +134,6 @@ class GameScene: SKScene {
     
     override func update(_ currentTime: TimeInterval) {
         gameMode.state.update(deltaTime: currentTime)
-        adjustEnemyAI()
-        adjustBallVelocity()
     }
 }
 
@@ -206,12 +201,12 @@ extension GameScene {
         player.position = CGPoint(x: xPosition, y: player.position.y)
     }
     
-    private func adjustEnemyAI() {
+    func adjustEnemyAI() {
         let xPosition = limitSprite(enemy, inX: ball.position.x)
         enemy.run(SKAction.moveTo(x: xPosition, duration: 0.08))
     }
     
-    private func adjustBallVelocity() {
+    func adjustBallVelocity() {
         let ballVelocity = ball.physicsBody?.velocity ?? CGVector()
         let dx = ballVelocity.dx + (ballRelativeVelocity.dx * ballRate)
         let dy = ballVelocity.dy + (ballRelativeVelocity.dy * ballRate)
@@ -227,13 +222,13 @@ extension GameScene {
         addChild(enemy)
         addChild(playerBorder)
         addChild(enemyBorder)
+        addChild(label)
+        addChild(ball)
         physicsWorld.contactDelegate = self
         physicsBody = border
     }
     
     func setupScene() {
-        addChild(ball)
-        
         let dx = randomDouble() > 0.5 ? -ballVelocity : ballVelocity
         let dy = randomDouble() > 0.5 ? -ballVelocity : ballVelocity
         ball.physicsBody?.applyImpulse(CGVector(dx: dx, dy: dy))
@@ -251,11 +246,11 @@ extension GameScene: SKPhysicsContactDelegate {
         // Change gamescene
         if categories.contains(Categories.playerBorder) {
             addChild(label)
-            label.text = "You lose!"
+            label.text = "Você perdeu!"
             gameMode.state.enter(GameOver.self)
         } else if categories.contains(Categories.enemyBorder) {
             addChild(label)
-            label.text = "You Win!"
+            label.text = "Você ganhou!"
             gameMode.state.enter(GameOver.self)
         }
     }
