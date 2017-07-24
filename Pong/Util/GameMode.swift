@@ -10,7 +10,7 @@ import SpriteKit
 import GameplayKit
 
 struct GameMode {
-    let difficulty: Difficulty
+    var difficulty: Difficulty
     
     var state: GKStateMachine
     

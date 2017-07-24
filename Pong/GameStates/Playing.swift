@@ -19,6 +19,7 @@ class Playing: GKState {
     
     override func didEnter(from previousState: GKState?) {
         if previousState is AFK {
+            scene?.adjustBasedOnDifficulty()
             scene?.setupScene()
             scene?.label.removeFromParent()
         }
@@ -33,4 +34,12 @@ class Playing: GKState {
         return stateClass is GameOver.Type
     }
     
+}
+
+extension Playing {
+    struct Names {
+        static let ball = "ball"
+        static let enemy = "enemy"
+        static let player = "player"
+    }
 }

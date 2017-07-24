@@ -69,16 +69,14 @@
 		E01C92C31F22C9B300A41DF5 /* Pong */ = {
 			isa = PBXGroup;
 			children = (
+				F41B10D71F26345000339BCD /* Util */,
+				F41B10D61F26344800339BCD /* ViewControllers */,
+				F41B10D51F26343800339BCD /* Scenes */,
 				E0E2C8AA1F257C4D00AF9796 /* GameStates */,
 				E01C92C41F22C9B300A41DF5 /* AppDelegate.swift */,
-				E01C92CA1F22C9B300A41DF5 /* GameScene.swift */,
-				E01C92CC1F22C9B300A41DF5 /* GameViewController.swift */,
 				E01C92D11F22C9B300A41DF5 /* Assets.xcassets */,
 				E01C92D31F22C9B300A41DF5 /* LaunchScreen.storyboard */,
 				E01C92D61F22C9B300A41DF5 /* Info.plist */,
-				E05BA68E1F250E0F00DBBEC4 /* Categories.swift */,
-				E0E2C8A61F25781700AF9796 /* Utils.swift */,
-				E0E2C8A81F257AE400AF9796 /* GameMode.swift */,
 			);
 			path = Pong;
 			sourceTree = "<group>";
@@ -99,6 +97,32 @@
 				E0E2C8AF1F257D4300AF9796 /* GameOver.swift */,
 			);
 			path = GameStates;
+			sourceTree = "<group>";
+		};
+		F41B10D51F26343800339BCD /* Scenes */ = {
+			isa = PBXGroup;
+			children = (
+				E01C92CA1F22C9B300A41DF5 /* GameScene.swift */,
+			);
+			path = Scenes;
+			sourceTree = "<group>";
+		};
+		F41B10D61F26344800339BCD /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				E01C92CC1F22C9B300A41DF5 /* GameViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		F41B10D71F26345000339BCD /* Util */ = {
+			isa = PBXGroup;
+			children = (
+				E05BA68E1F250E0F00DBBEC4 /* Categories.swift */,
+				E0E2C8A61F25781700AF9796 /* Utils.swift */,
+				E0E2C8A81F257AE400AF9796 /* GameMode.swift */,
+			);
+			path = Util;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

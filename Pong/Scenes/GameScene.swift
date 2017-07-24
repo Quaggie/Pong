@@ -21,18 +21,20 @@ class GameScene: SKScene {
         return GameMode(difficulty: .normal, states: states)
     }()
     
+    var enemyMovementSpeed: TimeInterval = 0.08
     var ballVelocity: CGFloat = 3
     var ballRate: CGFloat = 0
-    lazy var ballRelativeVelocity: CGVector = {
+    var ballRelativeVelocity: CGVector {
         let ballVelocity = self.ball.physicsBody?.velocity ?? CGVector()
         return CGVector(dx: self.ballVelocity - ballVelocity.dx, dy: self.ballVelocity - ballVelocity.dy)
-    }()
+    }
     
     lazy var label: SKLabelNode = {
         let label = SKLabelNode()
         label.color = .white
         label.position = CGPoint(x: self.size.width / 2, y: (self.size.height / 2) + 20)
         label.text = "Pressione para jogar"
+        label.zPosition = 50
         return label
     }()
     
@@ -77,6 +79,7 @@ class GameScene: SKScene {
     
     lazy var player: SKSpriteNode = {
         let player = SKSpriteNode()
+        player.name = Playing.Names.player
         player.position = CGPoint(x: self.frame.width / 2, y: self.frame.origin.y + 20)
         player.size = CGSize(width: 70, height: 10)
         player.color = .white
@@ -92,6 +95,7 @@ class GameScene: SKScene {
     
     lazy var enemy: SKSpriteNode = {
         let enemy = SKSpriteNode()
+        enemy.name = Playing.Names.enemy
         enemy.position = CGPoint(x: self.frame.width / 2, y: self.frame.height - 20)
         enemy.size = CGSize(width: 70, height: 10)
         enemy.color = .white
@@ -108,6 +112,7 @@ class GameScene: SKScene {
     lazy var ball: SKSpriteNode = {
         let texture = SKTexture(imageNamed: "ball.png")
         let ball = SKSpriteNode(texture: texture)
+        ball.name = Playing.Names.ball
         ball.position = CGPoint(x: self.frame.width / 2, y: self.frame.height / 2)
         ball.size = CGSize(width: 15, height: 15)
         ball.color = .white
@@ -140,17 +145,14 @@ class GameScene: SKScene {
 // MARK: Touches
 extension GameScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first
-        guard let touchLocation = touch?.location(in: self) else {
-            return
-        }
-        
         if let currentState = gameMode.state.currentState {
             switch currentState {
             case is Playing:
+                let touch = touches.first
+                guard let touchLocation = touch?.location(in: self) else {
+                    return
+                }
                 movePlayer(to: touchLocation)
-            case is AFK:
-                gameMode.state.enter(Playing.self)
             default: break
             }
         }
@@ -169,7 +171,12 @@ extension GameScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameMode.state.currentState is GameOver {
+//            let gameScene = GameScene(size: size)
+//            gameScene.gameMode.difficulty = gameMode.difficulty
             view?.presentScene(GameScene(size: size), transition: SKTransition.crossFade(withDuration: 1.0))
+        }
+        if let currentState = gameMode.state.currentState as? AFK {
+            currentState.didTouch(touches: touches, event: event)
         }
     }
 }
@@ -203,7 +210,7 @@ extension GameScene {
     
     func adjustEnemyAI() {
         let xPosition = limitSprite(enemy, inX: ball.position.x)
-        enemy.run(SKAction.moveTo(x: xPosition, duration: 0.08))
+        enemy.run(SKAction.moveTo(x: xPosition, duration: enemyMovementSpeed))
     }
     
     func adjustBallVelocity() {
@@ -211,6 +218,24 @@ extension GameScene {
         let dx = ballVelocity.dx + (ballRelativeVelocity.dx * ballRate)
         let dy = ballVelocity.dy + (ballRelativeVelocity.dy * ballRate)
         ball.physicsBody?.velocity = CGVector(dx: dx, dy: dy)
+    }
+    
+    func adjustBasedOnDifficulty() {
+        switch gameMode.difficulty {
+        case .easy:
+            ballVelocity = 3
+            enemyMovementSpeed = 0.10
+        case .normal:
+            ballVelocity = 3
+            enemyMovementSpeed = 0.08
+        case .hard:
+            ballVelocity = 4
+            enemyMovementSpeed = 0.05
+        }
+    }
+    
+    func changeDifficulty(to difficulty: GameMode.Difficulty) {
+        gameMode.difficulty = difficulty
     }
 }
 
