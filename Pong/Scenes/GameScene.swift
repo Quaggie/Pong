@@ -47,7 +47,7 @@ class GameScene: SKScene {
     
     lazy var playerBorder: SKSpriteNode = {
         let pb = SKSpriteNode()
-        pb.size = CGSize(width: self.frame.width, height: 2)
+        pb.size = CGSize(width: self.frame.width, height: 5)
         pb.position = CGPoint(x: self.frame.width / 2, y: 0)
         pb.physicsBody = SKPhysicsBody(rectangleOf: pb.size)
         pb.physicsBody?.affectedByGravity = false
@@ -63,7 +63,7 @@ class GameScene: SKScene {
     
     lazy var enemyBorder: SKSpriteNode = {
         let eb = SKSpriteNode()
-        eb.size = CGSize(width: self.frame.width, height: 2)
+        eb.size = CGSize(width: self.frame.width, height: 5)
         eb.position = CGPoint(x: self.frame.width / 2, y: self.frame.height)
         eb.physicsBody = SKPhysicsBody(rectangleOf: eb.size)
         eb.physicsBody?.affectedByGravity = false
@@ -133,7 +133,6 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         setupSprites()
-        becomeFirstResponder()
         gameMode.state.enter(AFK.self)
     }
     
@@ -145,49 +144,33 @@ class GameScene: SKScene {
 // MARK: Touches
 extension GameScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let currentState = gameMode.state.currentState {
-            switch currentState {
-            case is Playing:
-                let touch = touches.first
-                guard let touchLocation = touch?.location(in: self) else {
-                    return
-                }
-                movePlayer(to: touchLocation)
-            default: break
+        if gameMode.state.currentState is Playing {
+            let touch = touches.first
+            guard let touchLocation = touch?.location(in: self) else {
+                return
             }
+            movePlayer(to: touchLocation)
+        }
+        
+        if let currentState = gameMode.state.currentState as? AFK {
+            currentState.didTouch(touches: touches, event: event)
         }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let touch = touches.first
-        guard let touchLocation = touch?.location(in: self) else {
-            return
-        }
-        
         if gameMode.state.currentState is Playing {
+            let touch = touches.first
+            guard let touchLocation = touch?.location(in: self) else {
+                return
+            }
+            
             movePlayer(to: touchLocation)
         }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameMode.state.currentState is GameOver {
-            view?.presentScene(GameScene(size: size), transition: SKTransition.crossFade(withDuration: 1.0))
-        }
-        if let currentState = gameMode.state.currentState as? AFK {
-            currentState.didTouch(touches: touches, event: event)
-        }
-    }
-}
-
-// MARK: Shake gesture
-extension GameScene {
-    override var canBecomeFirstResponder: Bool {
-        return true
-    }
-    
-    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
-        if motion == .motionShake {
-            print("Shake")
+            view?.presentScene(GameScene(size: size), transition: .crossFade(withDuration: 1.0))
         }
     }
 }
@@ -222,7 +205,7 @@ extension GameScene {
         switch gameMode.difficulty {
         case .easy:
             ballVelocity = 3
-            enemyMovementSpeed = 0.10
+            enemyMovementSpeed = 0.15
         case .normal:
             ballVelocity = 3
             enemyMovementSpeed = 0.08
@@ -235,6 +218,15 @@ extension GameScene {
     func changeDifficulty(to difficulty: GameMode.Difficulty) {
         gameMode.difficulty = difficulty
     }
+    
+    func showLabel(title: String) {
+        addChild(label)
+        label.text = title
+    }
+    
+    func hideLabel() {
+        label.removeFromParent()
+    }
 }
 
 
@@ -245,7 +237,6 @@ extension GameScene {
         addChild(enemy)
         addChild(playerBorder)
         addChild(enemyBorder)
-        addChild(label)
         addChild(ball)
         physicsWorld.contactDelegate = self
         physicsBody = border
@@ -268,12 +259,10 @@ extension GameScene: SKPhysicsContactDelegate {
         
         // Change gamescene
         if categories.contains(Categories.playerBorder) {
-            addChild(label)
-            label.text = "Você perdeu!"
+            gameMode.gameWon = false
             gameMode.state.enter(GameOver.self)
         } else if categories.contains(Categories.enemyBorder) {
-            addChild(label)
-            label.text = "Você ganhou!"
+            gameMode.gameWon = true
             gameMode.state.enter(GameOver.self)
         }
     }

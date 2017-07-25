@@ -12,6 +12,7 @@ import GameplayKit
 
 class GameViewController: UIViewController {
     
+    let isDebug = false
     lazy var skView: SKView = SKView(frame: self.view.frame)
 
     override func viewDidLoad() {
@@ -21,13 +22,16 @@ class GameViewController: UIViewController {
         
         let width = skView.frame.width
         let height = skView.frame.height
-        let scene = GameScene(size: CGSize(width: width, height: height))
+        let scene = MainMenuScene(size: CGSize(width: width, height: height))
         scene.scaleMode = .aspectFill
         
         skView.ignoresSiblingOrder = true
-        skView.showsFPS = false
-        skView.showsNodeCount = false
-        skView.showsPhysics = false
+        
+        if isDebug {
+            skView.showsFPS = true
+            skView.showsNodeCount = true
+            skView.showsPhysics = true
+        }
         skView.presentScene(scene)
     }
 

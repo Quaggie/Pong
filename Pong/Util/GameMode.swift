@@ -11,8 +11,8 @@ import GameplayKit
 
 struct GameMode {
     var difficulty: Difficulty
-    
     var state: GKStateMachine
+    var gameWon: Bool?
     
     enum Difficulty {
         case easy

@@ -18,10 +18,19 @@ class GameOver: CustomGKState {
     }
     
     override func didEnter(from previousState: GKState?) {
-        if previousState is Playing {
-            scene?.ball.removeFromParent()
-            scene?.enemy.removeAllActions()
+        scene?.ball.removeFromParent()
+        scene?.enemy.removeAllActions()
+        if let gameWon = scene?.gameMode.gameWon {
+            if gameWon {
+                scene?.showLabel(title: "Você ganhou!")
+            } else {
+                scene?.showLabel(title: "Você perdeu!")
+            }
         }
+    }
+    
+    override func willExit(to nextState: GKState) {
+        scene?.hideLabel()
     }
     
     override func isValidNextState(_ stateClass: AnyClass) -> Bool {
