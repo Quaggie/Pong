@@ -170,7 +170,7 @@ extension GameScene {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if gameMode.state.currentState is GameOver {
-            view?.presentScene(GameScene(size: size), transition: .crossFade(withDuration: 1.0))
+            view?.presentScene(MainMenuScene(size: size), transition: .moveIn(with: .up, duration: 0.4))
         }
     }
 }

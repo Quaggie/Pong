@@ -56,7 +56,7 @@ extension MainMenuScene {
             default: break
             }
             
-            view?.presentScene(scene, transition: .crossFade(withDuration: 1.0))
+            view?.presentScene(scene, transition: .reveal(with: .up, duration: 0.4))
         }
     }
 }
